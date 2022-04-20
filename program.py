@@ -15,8 +15,8 @@ class Program():
 		"""Collects methods to create core of program run"""
 
 		self.database.define_parser_arguments()
-		if self.database.parsed_arguments.create_db:
-			self.database.check_database_existence()
-			self.database.create_new_database()
+		self.database.start_database()
+		if self.database.parsed_arguments.add:
+			self.database.add_new_material()
 
 
