@@ -85,10 +85,39 @@ class Database():
                              last_review_date, responsible_employee))
         self.connection.commit()
 
-    # @TODO changing stocks by hand
-    # @TODO show database
+    def show_data(self):
+        """Prints whole content of database table"""
+
+        headers_list = ["id", "sku_description", "sku_id", "current_stock_kg", "price", "last_review_date",
+                        "responsible_employee"]
+        for header in headers_list:
+            print(f"{header:<20}", end=" ")
+        print()
+        for row in self.cursor.execute("SELECT * FROM raw_materials_stock"):
+            for data in row:
+                print(f"{data:<20}", end=" ")
+            print()
 
     def add_sample_raw_materials_stocks(self):
-        """"""
+        """Adds sample rows into raw materials table in database"""
 
-        pass
+        sample_raw_materials_list = [
+            ('22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
+            ('32REW', 345718, 2000, 4.20, '2022-04-20', 'testuser2@domain.com'),
+            ('BYSE', 345719, 10000, 3.00, '2022-04-20', 'testuser2@domain.com'),
+            ('OILB', 345729, 1740, 11.40, '2022-04-20', 'testuser3@domain.com')
+        ]
+        self.cursor.executemany("INSERT INTO raw_materials_stock"
+                                "(sku_description,"
+                                "sku_id,"
+                                "current_stock_kg,"
+                                "price,"
+                                "last_review_date,"
+                                "responsible_employee)"
+                                "VALUES (?, ?, ?, ?, ?, ?)",
+                                sample_raw_materials_list)
+        self.connection.commit()
+
+
+    # @TODO take goods what was not reviewed more than 3 days ago
+    # @TODO changing stocks by hand

@@ -18,5 +18,7 @@ class Program():
 		self.database.start_database()
 		if self.database.parsed_arguments.add:
 			self.database.add_new_material()
+		self.database.show_data()
+
 
 
