@@ -1,4 +1,7 @@
-"""Collects database_manager module's tests"""
+import datetime
+
+from freezegun import freeze_time
+from mock import mock
 import pytest
 import sqlite3
 from database_manager import Database
@@ -71,8 +74,8 @@ def test_add_sample_raw_materials_stocks():
     test_database = Database(":memory:")
     expected_rows_number = 4
     expected_table_content = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                              (2, '32REW', 345718, 2000, 4.2, '2022-04-20', 'testuser2@domain.com'),
-                              (3, 'BYSE', 345719, 10000, 3, '2022-04-20', 'testuser2@domain.com'),
+                              (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
+                              (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
                               (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
@@ -85,6 +88,44 @@ def test_add_sample_raw_materials_stocks():
         assert len(rows_from_database) == expected_rows_number
         assert rows_from_database == expected_table_content
 
+
+@freeze_time(datetime.date(2022, 4, 21))
+def test_get_materials_to_review():
+    """Checks if method returns correct list of materials where difference beetween today and last review date
+    is equal or greater than standard - 3 days. Used wrapper to freeze variable indicates today in testcase"""
+
+    # GIVEN
+    test_database = Database(":memory:")
+    expected_materials_return = [(2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com')]
+    with sqlite3.connect(test_database.path) as test_database.connection:
+        test_database.cursor = test_database.connection.cursor()
+        test_database.create_raw_materials_table()
+        test_database.add_sample_raw_materials_stocks()
+    # WHEN
+    materials_to_review = test_database.get_materials_to_review(days_interval=3)
+    # THEN
+    assert materials_to_review == expected_materials_return
+
+
+@freeze_time(datetime.date(2022, 4, 21))
+def test_get_materials_to_review_shortened_days_interval():
+    """Checks if method returns correct list of materials where difference beetween today and last review date
+    is equal or greater than indicated 2 days. Used wrapper to freeze variable indicates today in testcase"""
+
+    # GIVEN
+    test_database = Database(":memory:")
+    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
+                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com')]
+    with sqlite3.connect(test_database.path) as test_database.connection:
+        test_database.cursor = test_database.connection.cursor()
+        test_database.create_raw_materials_table()
+        test_database.add_sample_raw_materials_stocks()
+    # WHEN
+    materials_to_review = test_database.get_materials_to_review(days_interval=2)
+    # THEN
+    assert materials_to_review == expected_materials_return
 
 
 

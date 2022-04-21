@@ -18,7 +18,9 @@ class Program():
 		self.database.start_database()
 		if self.database.parsed_arguments.add:
 			self.database.add_new_material()
+		# self.database.add_sample_raw_materials_stocks()
 		self.database.show_data()
+		materials_to_review = self.database.get_materials_to_review()
 
 
 

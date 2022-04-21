@@ -1,5 +1,6 @@
 """Includes class connected with database operations"""
 from argparse import ArgumentParser
+from freezegun import freeze_time
 import os
 import sqlite3
 import datetime
@@ -85,6 +86,7 @@ class Database():
                              last_review_date, responsible_employee))
         self.connection.commit()
 
+    # @TODO make to be used also by materials to be reviewed
     def show_data(self):
         """Prints whole content of database table"""
 
@@ -102,10 +104,10 @@ class Database():
         """Adds sample rows into raw materials table in database"""
 
         sample_raw_materials_list = [
-            ('22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-            ('32REW', 345718, 2000, 4.20, '2022-04-20', 'testuser2@domain.com'),
-            ('BYSE', 345719, 10000, 3.00, '2022-04-20', 'testuser2@domain.com'),
-            ('OILB', 345729, 1740, 11.40, '2022-04-20', 'testuser3@domain.com')
+            ('22REW', 345721, 1000, 7.89, datetime.date(2022, 4, 19), 'testuser@domain.com'),
+            ('32REW', 345718, 2000, 4.20, datetime.date(2022, 4, 18), 'testuser2@domain.com'),
+            ('BYSE', 345719, 10000, 3.00, datetime.date(2022, 4, 17), 'testuser2@domain.com'),
+            ('OILB', 345729, 1740, 11.40, datetime.date(2022, 4, 20), 'testuser3@domain.com')
         ]
         self.cursor.executemany("INSERT INTO raw_materials_stock"
                                 "(sku_description,"
@@ -118,6 +120,34 @@ class Database():
                                 sample_raw_materials_list)
         self.connection.commit()
 
+    def get_materials_to_review(self, days_interval=3):
+        """Returns list of materials from database what should be reviewed in terms of stock level.
+        They are indicated when days difference between review date and current date is exceeded.
 
-    # @TODO take goods what was not reviewed more than 3 days ago
-    # @TODO changing stocks by hand
+         Args:
+             days_interval (int): number of days what added to last review date indicates new date
+             when material should be reviewed
+        Returns:
+            materials_to_be_reviewed (list): part of database table with materials what should be reviewed"""
+
+        self.cursor.execute("SELECT * FROM raw_materials_stock")
+        materials = self.cursor.fetchall()
+        materials_to_review = []
+        for material in materials:
+            date = material[5]
+            date_list = date.split("-")
+            year = int(date_list[0])
+            month = int(date_list[1])
+            day = int(date_list[2])
+            date = datetime.date(year, month, day)
+            review_interval = datetime.timedelta(days=days_interval)
+            date_to_be_reviewed = date + review_interval
+            if date_to_be_reviewed <= datetime.date.today():
+                materials_to_review.append(material)
+        return materials_to_review
+
+
+
+
+    # @TODO changing stocks by hand (includes auto date change when changed quantity)
+
