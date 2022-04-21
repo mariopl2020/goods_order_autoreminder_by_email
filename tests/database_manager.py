@@ -58,11 +58,11 @@ def test_drop_table_from_database():
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
-        test_database.show_data()
+        test_database.get_all_materials()
         test_database.drop_table_from_database()
         #WHEN
         with pytest.raises(sqlite3.OperationalError) as exception:
-            test_database.show_data()
+            test_database.get_all_materials()
             #THEN
             assert exception == "no such table: raw_materials_stock"
 
@@ -89,9 +89,28 @@ def test_add_sample_raw_materials_stocks():
         assert rows_from_database == expected_table_content
 
 
+def test_get_all_materials():
+    """"""
+
+    #GIVEN
+    test_database = Database(":memory:")
+    with sqlite3.connect(test_database.path) as test_database.connection:
+        test_database.cursor = test_database.connection.cursor()
+        test_database.create_raw_materials_table()
+        test_database.add_sample_raw_materials_stocks()
+    expected_materials = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
+                          (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
+                          (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
+                          (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+    #WHEN
+    materials = test_database.get_all_materials()
+    #THEN
+    assert materials == expected_materials
+
+
 @freeze_time(datetime.date(2022, 4, 21))
 def test_get_materials_to_review():
-    """Checks if method returns correct list of materials where difference beetween today and last review date
+    """Checks if method returns correct list of materials where difference between today and last review date
     is equal or greater than standard - 3 days. Used wrapper to freeze variable indicates today in testcase"""
 
     # GIVEN

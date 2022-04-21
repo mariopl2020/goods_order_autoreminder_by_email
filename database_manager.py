@@ -1,6 +1,5 @@
 """Includes class connected with database operations"""
 from argparse import ArgumentParser
-from freezegun import freeze_time
 import os
 import sqlite3
 import datetime
@@ -19,7 +18,7 @@ class Database():
         self.connection = None
 
     def define_parser_arguments(self):
-        """Defines arguments connected with database as flags able to trigger when program is calling"""
+        """Defines arguments connected with database as flags able to trigger when program is called"""
 
         argument_parser = ArgumentParser()
         argument_parser.add_argument("--reset_db",
@@ -54,9 +53,10 @@ class Database():
                             " price NUMERIC, last_review_date DATE, responsible_employee TEXT)")
 
     def reset_database(self):
-        """"""
+        """Deletes table in database if exist and creates empty new one"""
 
-        self.drop_table_from_database()
+        if self.exists:
+            self.drop_table_from_database()
         self.create_raw_materials_table()
         print("Database reset")
 
@@ -66,9 +66,7 @@ class Database():
         self.check_database_existence()
         self.connect_database()
         if self.parsed_arguments.reset_db:
-            if self.exists:
-                self.drop_table_from_database()
-            self.create_raw_materials_table()
+            self.reset_database()
         elif not self.exists:
             self.create_raw_materials_table()
 
@@ -94,20 +92,6 @@ class Database():
         self.connection.commit()
         print("Material added")
 
-    # @TODO make to be used also by materials to be reviewed
-    def show_data(self):
-        """Prints whole content of database table"""
-
-        headers_list = ["id", "sku_description", "sku_id", "current_stock_kg", "price", "last_review_date",
-                        "responsible_employee"]
-        for header in headers_list:
-            print(f"{header:<20}", end=" ")
-        print()
-        for row in self.cursor.execute("SELECT * FROM raw_materials_stock"):
-            for data in row:
-                print(f"{data:<20}", end=" ")
-            print()
-
     def add_sample_raw_materials_stocks(self):
         """Adds sample rows into raw materials table in database"""
 
@@ -129,18 +113,28 @@ class Database():
         self.connection.commit()
         print("Sample materials added")
 
+    def get_all_materials(self):
+        """Returns list of all rows from database table with raw materials
+
+        Returns:
+            materials (list): list of all raw materials stock"""
+
+        self.cursor.execute("SELECT * FROM raw_materials_stock")
+        materials = self.cursor.fetchall()
+
+        return materials
+
     def get_materials_to_review(self, days_interval=3):
         """Returns list of materials from database what should be reviewed in terms of stock level.
         They are indicated when days difference between review date and current date is exceeded.
 
-         Args:
+         Arguments:
              days_interval (int): number of days what added to last review date indicates new date
              when material should be reviewed
         Returns:
             materials_to_be_reviewed (list): part of database table with materials what should be reviewed"""
 
-        self.cursor.execute("SELECT * FROM raw_materials_stock")
-        materials = self.cursor.fetchall()
+        materials = self.get_all_materials()
         materials_to_review = []
         for material in materials:
             date = material[5]
@@ -155,8 +149,23 @@ class Database():
                 materials_to_review.append(material)
         return materials_to_review
 
+    @staticmethod
+    def show_data(materials_list):
+        """Prints chosen part of database table content
 
+        Arguments:
+            materials_list (list): list of raw materials to be shown"""
 
+        headers_list = ["id", "sku_description", "sku_id", "current_stock_kg", "price", "last_review_date",
+                        "responsible_employee"]
+
+        for header in headers_list:
+            print(f"{header:<20}", end=" ")
+        print()
+        for row in materials_list:
+            for data in row:
+                print(f"{data:<20}", end=" ")
+            print()
 
     # @TODO changing stocks by hand (includes auto date change when changed quantity)
 

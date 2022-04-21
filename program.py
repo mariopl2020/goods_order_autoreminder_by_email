@@ -12,12 +12,13 @@ class Program():
 
         self.database = Database()
         self.menu_content = {
-                      1: "Add single material to database",
-                      2: "Show all raw materials",
-                      3: "Add sample raw materials stock into your database",
-                      9: "Reset database",
-                      0: "Quit program"
-        }
+                            1: "Add single material to database",
+                            2: "Show all raw materials",
+                            3: "Add sample raw materials stock into your database",
+                            4: "Show raw materials to be reviewed",
+                            9: "Reset database",
+                            0: "Quit program"
+                        }
 
     def print_menu(self):
         """Prints main menu of program as list of available options to be performed"""
@@ -58,9 +59,13 @@ class Program():
             if choice == 1:
                 self.database.add_new_material()
             elif choice == 2:
-                self.database.show_data()
+                all_materials = self.database.get_all_materials()
+                self.database.show_data(all_materials)
             elif choice == 3:
                 self.database.add_sample_raw_materials_stocks()
+            elif choice == 4:
+                materials_to_review = self.database.get_materials_to_review()
+                self.database.show_data(materials_to_review)
             elif choice == 9:
                 self.database.reset_database()
             elif choice == 0:
