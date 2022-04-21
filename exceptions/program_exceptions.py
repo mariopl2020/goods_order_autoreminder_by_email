@@ -1,0 +1,2 @@
+class InvalidMenuNumber(Exception):
+	pass

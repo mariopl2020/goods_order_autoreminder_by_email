@@ -53,6 +53,13 @@ class Database():
                             " sku_description TEXT, sku_id INTEGER, current_stock_kg NUMERIC,"
                             " price NUMERIC, last_review_date DATE, responsible_employee TEXT)")
 
+    def reset_database(self):
+        """"""
+
+        self.drop_table_from_database()
+        self.create_raw_materials_table()
+        print("Database reset")
+
     def start_database(self):
         """Starts database if it exists, not or is restarted"""
 
@@ -85,6 +92,7 @@ class Database():
                             (sku_description, sku_id, current_stock_kg, price,
                              last_review_date, responsible_employee))
         self.connection.commit()
+        print("Material added")
 
     # @TODO make to be used also by materials to be reviewed
     def show_data(self):
@@ -119,6 +127,7 @@ class Database():
                                 "VALUES (?, ?, ?, ?, ?, ?)",
                                 sample_raw_materials_list)
         self.connection.commit()
+        print("Sample materials added")
 
     def get_materials_to_review(self, days_interval=3):
         """Returns list of materials from database what should be reviewed in terms of stock level.
