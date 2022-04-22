@@ -1,6 +1,7 @@
 """Contains main functions of program and defines its working"""
 from database_manager import Database
 from exceptions.program_exceptions import InvalidMenuNumber
+from exceptions.database_manager_exceptions import NotExistingSKU
 
 
 class Program():
@@ -16,6 +17,7 @@ class Program():
                             2: "Show all raw materials",
                             3: "Add sample raw materials stock into your database",
                             4: "Show raw materials to be reviewed",
+                            5: "Change stock of chosen material",
                             9: "Reset database",
                             0: "Quit program"
                         }
@@ -37,8 +39,6 @@ class Program():
         if self.database.parsed_arguments.add:
             self.database.add_new_material()
         self.select_menu_options()
-        # materials_to_review = self.database.get_materials_to_review()
-        # print(materials_to_review)
 
     def select_menu_options(self):
         """Creates option path of program functions and allows user to decide which ones
@@ -66,6 +66,11 @@ class Program():
             elif choice == 4:
                 materials_to_review = self.database.get_materials_to_review()
                 self.database.show_data(materials_to_review)
+            elif choice == 5:
+                try:
+                    self.database.change_current_stock()
+                except NotExistingSKU as exception:
+                    print(exception)
             elif choice == 9:
                 self.database.reset_database()
             elif choice == 0:

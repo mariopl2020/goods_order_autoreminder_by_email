@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import os
 import sqlite3
 import datetime
+from exceptions.database_manager_exceptions import NotExistingSKU
 
 
 class Database():
@@ -167,5 +168,21 @@ class Database():
                 print(f"{data:<20}", end=" ")
             print()
 
-    # @TODO changing stocks by hand (includes auto date change when changed quantity)
+    def change_current_stock(self):
+        """Gives possibility for user to change stock quantity for given material. Then
+        review date is automatically changed on current date. All inputs are validated"""
+
+        try:
+            sku_id = int(input("Provide SKU ID\n"))
+            self.cursor.execute("SELECT sku_id FROM raw_materials_stock")
+            existing_skus = [sku[0] for sku in self.cursor.fetchall()]
+            if sku_id not in existing_skus:
+                raise NotExistingSKU("Provided SKU does not exist. Try again")
+            new_quantity = float(input("Enter new quantity [kg]\n"))
+            self.cursor.execute("UPDATE raw_materials_stock SET last_review_date=?,"
+                                "current_stock_kg=? WHERE sku_id =?",
+                                (datetime.date.today(), new_quantity, sku_id))
+            self.connection.commit()
+        except ValueError:
+            print("Entered wrong value. Try again!")
 
