@@ -41,6 +41,10 @@ class Database():
         with sqlite3.connect(self.path) as self.connection:
             self.cursor = self.connection.cursor()
 
+    def disconnect_database(self):
+
+        self.connection.close()
+
     def drop_table_from_database(self):
         """Drops existing table from database"""
 

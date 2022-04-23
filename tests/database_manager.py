@@ -1,3 +1,4 @@
+"""Contains tests for database manager module"""
 import builtins
 import datetime
 from freezegun import freeze_time

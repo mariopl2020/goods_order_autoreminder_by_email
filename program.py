@@ -2,6 +2,7 @@
 from database_manager import Database
 from exceptions.program_exceptions import InvalidMenuNumber
 from exceptions.database_manager_exceptions import NotExistingSKU
+from mail_manager import Email
 
 
 class Program():
@@ -12,12 +13,14 @@ class Program():
         """Initiates new program object"""
 
         self.database = Database()
+        self.email = Email()
         self.menu_content = {
                             1: "Add single material to database",
                             2: "Show all raw materials",
                             3: "Add sample raw materials stock into your database",
                             4: "Show raw materials to be reviewed",
                             5: "Change stock of chosen material",
+                            6: "Send autoreminders about stock review",
                             9: "Reset database",
                             0: "Quit program"
                         }
@@ -39,6 +42,17 @@ class Program():
         if self.database.parsed_arguments.add:
             self.database.add_new_material()
         self.select_menu_options()
+        self.database.disconnect_database()
+
+    def send_reminders_emails(self):
+        """Allows sending reminding emails to responsible persons where raw materials have too long time
+        with no review"""
+
+        # @TODO to develop
+        self.email.log_to_admin_email()
+        # self.get_emails_to_send()
+        self.email.send_email()
+        self.email.logout()
 
     def select_menu_options(self):
         """Creates option path of program functions and allows user to decide which ones
@@ -71,6 +85,9 @@ class Program():
                     self.database.change_current_stock()
                 except NotExistingSKU as exception:
                     print(exception)
+            elif choice == 6:
+                # @TODO
+                self.send_reminders_emails()
             elif choice == 9:
                 self.database.reset_database()
             elif choice == 0:
