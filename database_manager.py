@@ -1,5 +1,6 @@
 """Includes class connected with database operations"""
 from argparse import ArgumentParser
+from collections import namedtuple
 import os
 import sqlite3
 import datetime
@@ -124,12 +125,21 @@ class Database():
         """Returns list of all rows from database table with raw materials
 
         Returns:
-            materials (list): list of all raw materials stock"""
+            materials (list): list of all raw materials stock as namedtuple objects"""
 
-        self.cursor.execute("SELECT * FROM raw_materials_stock")
-        materials = self.cursor.fetchall()
-
-        return materials
+        Material = namedtuple("Material", "id, sku_description, sku_id, current_stock_kg, "
+                                          "price, last_review_date, responsible_employee")
+        self.cursor.execute("SELECT id, sku_description, sku_id, current_stock_kg, "
+                            "price, last_review_date, responsible_employee"
+                            " FROM raw_materials_stock")
+        material_list = []
+        for id_row, sku_description, sku_id, current_stock_kg, price, last_review_date, \
+                responsible_employee in self.cursor.fetchall():
+            material = Material(
+                id_row, sku_description, sku_id, current_stock_kg,
+                price, last_review_date, responsible_employee)
+            material_list.append(material)
+        return material_list
 
     def get_materials_to_review(self, days_interval=3):
         """Returns list of materials from database what should be reviewed in terms of stock level.
@@ -144,7 +154,7 @@ class Database():
         materials = self.get_all_materials()
         materials_to_review = []
         for material in materials:
-            date = material[5]
+            date = material.last_review_date
             date_list = date.split("-")
             year = int(date_list[0])
             month = int(date_list[1])
@@ -191,4 +201,3 @@ class Database():
             self.connection.commit()
         except ValueError:
             print("Entered wrong value. Try again!")
-

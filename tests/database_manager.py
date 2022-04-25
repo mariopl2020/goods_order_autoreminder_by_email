@@ -108,7 +108,6 @@ def test_get_all_materials():
     # THEN
     assert materials == expected_materials
 
-
 @freeze_time(datetime.date(2022, 4, 21))
 def test_get_materials_to_review():
     """Checks if method returns correct list of materials where difference between today and last review date

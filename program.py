@@ -1,5 +1,4 @@
 """Contains main functions of program and defines its working"""
-from collections import namedtuple
 import smtplib
 from smtplib import SMTPAuthenticationError
 from database_manager import Database
@@ -60,8 +59,8 @@ class Program():
 
         sender = "System alert"
         subject = f"Raw material {material_name} needs review"
-        body = f"Reminder!\n Raw material {material_name} has {stock} kg "\
-            f"stock and was reviewed last time on {last_review_date}"
+        body = f"Reminder!\n Raw material {material_name} has {stock} kg " \
+               f"stock and was reviewed last time on {last_review_date}"
 
         message = f"From: {sender}\n" \
                   f"Subject: {subject}\n" \
@@ -79,11 +78,10 @@ class Program():
                 print("Logging successfully")
                 materials_list = self.database.get_materials_to_review()
                 for material in materials_list:
-                    # @TODO namedtuple?
-                    material_name = material[1]
-                    stock = material[3]
-                    last_review_date = material[5]
-                    email_address = material[6]
+                    material_name = material.sku_description
+                    stock = material.current_stock_kg
+                    last_review_date = material.last_review_date
+                    email_address = material.responsible_employee
                     message = self.fill_message_template(material_name, stock, last_review_date)
                     self.email.send_email(mail_to=email_address, msg_content=message)
             except SMTPAuthenticationError:
