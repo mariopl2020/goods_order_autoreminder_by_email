@@ -42,6 +42,7 @@ class Database():
             self.cursor = self.connection.cursor()
 
     def disconnect_database(self):
+        """Disconnects database"""
 
         self.connection.close()
 
@@ -56,6 +57,7 @@ class Database():
         self.cursor.execute("CREATE TABLE raw_materials_stock (id INTEGER PRIMARY KEY AUTOINCREMENT,"
                             " sku_description TEXT, sku_id INTEGER, current_stock_kg NUMERIC,"
                             " price NUMERIC, last_review_date DATE, responsible_employee TEXT)")
+        self.connection.commit()
 
     def reset_database(self):
         """Deletes table in database if exist and creates empty new one"""
@@ -101,10 +103,10 @@ class Database():
         """Adds sample rows into raw materials table in database"""
 
         sample_raw_materials_list = [
-            ('22REW', 345721, 1000, 7.89, datetime.date(2022, 4, 19), 'testuser@domain.com'),
-            ('32REW', 345718, 2000, 4.20, datetime.date(2022, 4, 18), 'testuser2@domain.com'),
-            ('BYSE', 345719, 10000, 3.00, datetime.date(2022, 4, 17), 'testuser2@domain.com'),
-            ('OILB', 345729, 1740, 11.40, datetime.date(2022, 4, 20), 'testuser3@domain.com')
+            ('22REW', 345721, 1000, 7.89, datetime.date(2022, 4, 19), 'autoadmfactor@gmail.com'),
+            ('32REW', 345718, 2000, 4.20, datetime.date(2022, 4, 18), 'adampolakfactor@gmail.com'),
+            ('BYSE', 345719, 10000, 3.00, datetime.date(2022, 4, 17), 'autoadmfactor@gmail.com'),
+            ('OILB', 345729, 1740, 11.40, datetime.date(2022, 4, 20), 'adampolakfactor@gmail.com')
         ]
         self.cursor.executemany("INSERT INTO raw_materials_stock"
                                 "(sku_description,"

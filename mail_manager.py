@@ -1,6 +1,5 @@
 """Contains functionalities to manage and works with administrator email account"""
-import smtplib
-from smtplib import SMTPAuthenticationError
+
 
 class Email():
 	"""Represents email account"""
@@ -8,27 +7,26 @@ class Email():
 	def __init__(self):
 		"""Initiates email account"""
 		self.admin_email = "autoadmfactor@gmail.com"
+		self.smtp_server = "smtp.gmail.com"
+		self.smtp_port = 465
 		self.server = None
 
 	def log_to_admin_email(self):
-		"""Connect with email server and allows administrator to login into his account.
-		Protected from password correctness failure"""
+		"""Allows administrator to login into his account."""
 
-		with smtplib.SMTP_SSL(host="smtp.gmail.com", port=465) as self.server:
-			admin_password = input("Enter your email password\n")
-			try:
-				self.server.login(user=self.admin_email, password=admin_password)
-				print("Logging successfully")
-			except SMTPAuthenticationError:
-				print("Entered incorrect password")
+		admin_password = input("Enter your email password\n")
+		self.server.login(user=self.admin_email, password=admin_password)
 
-	# @TODO
-	def send_email(self):
-		""""""
-		pass
+	def send_email(self, mail_to, msg_content):
+		"""Sends mail from admin email account to chosen address with parametrized content
+
+		Arguments:
+			mail_to (str): email address what will be receiver of message
+			msg_content (str): message content"""
+
+		self.server.sendmail(from_addr=self.admin_email, to_addrs=mail_to, msg=msg_content)
 
 	def logout(self):
 		"""Ends connection with administrator's email server"""
 
 		self.server.close()
-

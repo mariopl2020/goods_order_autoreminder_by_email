@@ -35,18 +35,18 @@ def test_check_data_base_existence_negative():
 def test_create_raw_materials_table():
     """Checks if method correctly created empty table in database"""
 
-    #GIVEN
+    # GIVEN
     test_database = Database(":memory:")
     expected_rows_number = 0
     expected_table_content = []
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
-        #WHEN
+        # WHEN
         test_database.create_raw_materials_table()
         test_database.cursor.execute("SELECT * FROM raw_materials_stock")
         rows_from_database = test_database.cursor.fetchall()
         print(rows_from_database)
-        #THEN
+        # THEN
         assert len(rows_from_database) == expected_rows_number
         assert rows_from_database == expected_table_content
 
@@ -54,58 +54,58 @@ def test_create_raw_materials_table():
 def test_drop_table_from_database():
     """Checks if method correctly deletes table from database"""
 
-    #GIVEN
+    # GIVEN
     test_database = Database(":memory:")
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
         test_database.get_all_materials()
         test_database.drop_table_from_database()
-        #WHEN
+        # WHEN
         with pytest.raises(sqlite3.OperationalError) as exception:
             test_database.get_all_materials()
-            #THEN
+            # THEN
             assert exception == "no such table: raw_materials_stock"
 
 
 def test_add_sample_raw_materials_stocks():
     """Checks if method correctly adds sample rows to database table"""
 
-    #GIVEN
+    # GIVEN
     test_database = Database(":memory:")
     expected_rows_number = 4
-    expected_table_content = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                              (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                              (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-                              (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+    expected_table_content = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+                              (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                              (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+                              (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
-        #WHEN
+        # WHEN
         test_database.add_sample_raw_materials_stocks()
         test_database.cursor.execute("SELECT * FROM raw_materials_stock")
         rows_from_database = test_database.cursor.fetchall()
-        #THEN
+        # THEN
         assert len(rows_from_database) == expected_rows_number
         assert rows_from_database == expected_table_content
 
 
 def test_get_all_materials():
-    """"""
+    """Checks if method returns from database table all rows in correct form"""
 
-    #GIVEN
+    # GIVEN
     test_database = Database(":memory:")
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
         test_database.add_sample_raw_materials_stocks()
-    expected_materials = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                          (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                          (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-                          (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
-    #WHEN
+    expected_materials = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+                          (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                          (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+                          (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
+    # WHEN
     materials = test_database.get_all_materials()
-    #THEN
+    # THEN
     assert materials == expected_materials
 
 
@@ -116,8 +116,8 @@ def test_get_materials_to_review():
 
     # GIVEN
     test_database = Database(":memory:")
-    expected_materials_return = [(2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com')]
+    expected_materials_return = [(2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com')]
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
@@ -135,9 +135,9 @@ def test_get_materials_to_review_shortened_days_interval():
 
     # GIVEN
     test_database = Database(":memory:")
-    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com')]
+    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com')]
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
@@ -152,11 +152,11 @@ def test_get_materials_to_review_shortened_days_interval():
 def test_change_current_stock_correct_run():
     """Checks if method correctly change stock for provided, existing material and automatically set current date"""
 
-    #GIVEN
-    expected_materials_return = [(1, '22REW', 345721, 300, 7.89, '2022-04-21', 'testuser@domain.com'),
-                                (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                                (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-                                (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+    # GIVEN
+    expected_materials_return = [(1, '22REW', 345721, 300, 7.89, '2022-04-21', 'autoadmfactor@gmail.com'),
+                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+                                 (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
     input_values = ["345721", "300"]
     test_database = Database(":memory:")
     with sqlite3.connect(test_database.path) as test_database.connection:
@@ -166,22 +166,23 @@ def test_change_current_stock_correct_run():
 
         def mock_input(input_text):
             return input_values.pop(0)
+
         builtins.input = mock_input
-    #WHEN
+        # WHEN
         test_database.change_current_stock()
         print(test_database.get_all_materials())
-    #THEN
+    # THEN
     assert test_database.get_all_materials() == expected_materials_return
 
 
 def test_change_current_stock_text_as_sku():
     """Checks if provided sku as string is handled as exception and does not change anything in database"""
 
-    #GIVEN
-    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                                (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                                (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-                                (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+    # GIVEN
+    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+                                 (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
     input_values = ["zero", 20]
     test_database = Database(":memory:")
     with sqlite3.connect(test_database.path) as test_database.connection:
@@ -193,9 +194,9 @@ def test_change_current_stock_text_as_sku():
             return input_values.pop(0)
 
         builtins.input = mock_input
-    #WHEN
+        # WHEN
         test_database.change_current_stock()
-    #THEN
+        # THEN
         assert test_database.get_all_materials() == expected_materials_return
 
 
@@ -203,11 +204,11 @@ def test_change_current_stock_number_not_sku():
     """Checks if provided number as sku not existing in database causes exception raising
     and does not change anything in base"""
 
-    #GIVEN
-    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-                                 (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+    # GIVEN
+    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+                                 (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
     input_values = [222, 2000]
     test_database = Database(":memory:")
     with sqlite3.connect(test_database.path) as test_database.connection:
@@ -219,23 +220,23 @@ def test_change_current_stock_number_not_sku():
             return input_values.pop(0)
 
         builtins.input = mock_input
-    #WHEN
+        # WHEN
         with pytest.raises(NotExistingSKU):
             test_database.change_current_stock()
-    #THEN
+        # THEN
         assert test_database.get_all_materials() == expected_materials_return
 
 
 def test_change_current_stock_sku_ok_qty_wrong():
     """Checks if wrongly provided quantity as input does not change anything in database as expected"""
 
-    #GIVEN
+    # GIVEN
     test_database = Database(":memory:")
     user_input = [345721, "twenty"]
-    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'testuser@domain.com'),
-                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-                                 (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+    expected_materials_return = [(1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+                                 (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+                                 (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+                                 (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
@@ -243,11 +244,12 @@ def test_change_current_stock_sku_ok_qty_wrong():
 
         def input_mock(input_text):
             return user_input.pop(0)
+
         builtins.input = input_mock
 
-    #WHEN
+        # WHEN
         test_database.change_current_stock()
-    #THEN
+        # THEN
         assert test_database.get_all_materials() == expected_materials_return
 
 
@@ -255,14 +257,14 @@ def test_change_current_stock_sku_ok_qty_expected_result_wrong():
     """Checks if wrongly provided quantity is saved in database. Scenario considers wrong attitude
     that quantity is changed. Thus expected result is not equal to actual"""
 
-    #GIVEN
+    # GIVEN
     test_database = Database(":memory:")
     user_input = [345721, "twenty"]
     wrongly_expected_materials_return = [
-        (1, '22REW', 345721, "twenty", 7.89, '2022-04-19', 'testuser@domain.com'),
-        (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'testuser2@domain.com'),
-        (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'testuser2@domain.com'),
-        (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'testuser3@domain.com')]
+        (1, '22REW', 345721, "twenty", 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
+        (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
+        (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
+        (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
     with sqlite3.connect(test_database.path) as test_database.connection:
         test_database.cursor = test_database.connection.cursor()
         test_database.create_raw_materials_table()
@@ -270,9 +272,9 @@ def test_change_current_stock_sku_ok_qty_expected_result_wrong():
 
         def input_mock(input_text):
             return user_input.pop(0)
-        builtins.input = input_mock
-    #WHEN
-        test_database.change_current_stock()
-    #THEN
-        assert test_database.get_all_materials() != wrongly_expected_materials_return
 
+        builtins.input = input_mock
+        # WHEN
+        test_database.change_current_stock()
+        # THEN
+        assert test_database.get_all_materials() != wrongly_expected_materials_return
