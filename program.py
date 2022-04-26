@@ -1,6 +1,7 @@
 """Contains main functions of program and defines its working"""
 import smtplib
 from smtplib import SMTPAuthenticationError
+import sys
 from database_manager import Database
 from exceptions.program_exceptions import InvalidMenuNumber
 from exceptions.database_manager_exceptions import NotExistingSKU
@@ -8,8 +9,8 @@ from mail_manager import Email
 
 
 class Program():
-    """Represents program responsible for basic database management of raw material stocks and sending email's
-    reminders when stock is too low and needed to be reviewed"""
+    """Represents program responsible for basic database management of raw material stocks
+    and sending email's reminders when stock is too low and needed to be reviewed"""
 
     def __init__(self):
         """Initiates new program object"""
@@ -69,10 +70,11 @@ class Program():
         return message
 
     def send_email_reminders(self):
-        """Allows sending reminding emails to responsible persons where raw materials have too long time
-        with no review"""
+        """Allows sending reminding emails to responsible persons where raw materials
+        have too long time with no review"""
 
-        with smtplib.SMTP_SSL(host=self.email.smtp_server, port=self.email.smtp_port) as self.email.server:
+        with smtplib.SMTP_SSL(host=self.email.smtp_server, port=self.email.smtp_port)\
+                as self.email.server:
             try:
                 self.email.log_to_admin_email()
                 print("Logging successfully")
@@ -124,5 +126,5 @@ class Program():
                 self.database.reset_database()
             elif choice == 0:
                 self.database.disconnect_database()
-                exit()
+                sys.exit()
             print("-" * 40)

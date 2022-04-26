@@ -20,7 +20,8 @@ class Database():
         self.connection = None
 
     def define_parser_arguments(self):
-        """Defines arguments connected with database as flags able to trigger when program is called"""
+        """Defines arguments connected with database as flags able to trigger
+        when program is called"""
 
         argument_parser = ArgumentParser()
         argument_parser.add_argument("--reset_db",
@@ -55,9 +56,10 @@ class Database():
     def create_raw_materials_table(self):
         """Creates initial table of raw materials"""
 
-        self.cursor.execute("CREATE TABLE raw_materials_stock (id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            " sku_description TEXT, sku_id INTEGER, current_stock_kg NUMERIC,"
-                            " price NUMERIC, last_review_date DATE, responsible_employee TEXT)")
+        self.cursor.execute("CREATE TABLE raw_materials_stock (id INTEGER"
+                            "PRIMARY KEY AUTOINCREMENT, sku_description TEXT, sku_id INTEGER,"
+                            " current_stock_kg NUMERIC, price NUMERIC, last_review_date DATE,"
+                            " responsible_employee TEXT)")
         self.connection.commit()
 
     def reset_database(self):
@@ -149,7 +151,8 @@ class Database():
              days_interval (int): number of days what added to last review date indicates new date
              when material should be reviewed
         Returns:
-            materials_to_be_reviewed (list): part of database table with materials what should be reviewed"""
+            materials_to_be_reviewed (list): part of database table with materials what should
+            be reviewed"""
 
         materials = self.get_all_materials()
         materials_to_review = []
@@ -173,8 +176,8 @@ class Database():
         Arguments:
             materials_list (list): list of raw materials to be shown"""
 
-        headers_list = ["id", "sku_description", "sku_id", "current_stock_kg", "price", "last_review_date",
-                        "responsible_employee"]
+        headers_list = ["id", "sku_description", "sku_id", "current_stock_kg",
+                        "price", "last_review_date", "responsible_employee"]
 
         for header in headers_list:
             print(f"{header:<20}", end=" ")
