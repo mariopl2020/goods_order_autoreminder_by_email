@@ -5,7 +5,6 @@ import sqlite3
 from freezegun import freeze_time
 import pytest
 from database_manager import Database
-from exceptions.database_manager_exceptions import NotExistingSKU
 
 
 def test_check_data_base_existence_positive():
@@ -205,34 +204,6 @@ def test_change_current_stock_text_as_sku():
         builtins.input = mock_input
         # WHEN
         test_database.change_current_stock()
-        # THEN
-        assert test_database.get_all_materials() == expected_materials_return
-
-
-def test_change_current_stock_number_not_sku():
-    """Checks if provided number as sku not existing in database causes exception raising
-    and does not change anything in base"""
-
-    # GIVEN
-    expected_materials_return = [
-        (1, '22REW', 345721, 1000, 7.89, '2022-04-19', 'autoadmfactor@gmail.com'),
-        (2, '32REW', 345718, 2000, 4.2, '2022-04-18', 'adampolakfactor@gmail.com'),
-        (3, 'BYSE', 345719, 10000, 3, '2022-04-17', 'autoadmfactor@gmail.com'),
-        (4, 'OILB', 345729, 1740, 11.4, '2022-04-20', 'adampolakfactor@gmail.com')]
-    input_values = [222, 2000]
-    test_database = Database(":memory:")
-    with sqlite3.connect(test_database.path) as test_database.connection:
-        test_database.cursor = test_database.connection.cursor()
-        test_database.create_raw_materials_table()
-        test_database.add_sample_raw_materials_stocks()
-
-        def mock_input(input_text):
-            return input_values.pop(0)
-
-        builtins.input = mock_input
-        # WHEN
-        with pytest.raises(NotExistingSKU):
-            test_database.change_current_stock()
         # THEN
         assert test_database.get_all_materials() == expected_materials_return
 

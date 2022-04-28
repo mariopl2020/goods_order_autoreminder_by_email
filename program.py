@@ -4,7 +4,6 @@ from smtplib import SMTPAuthenticationError
 import sys
 from database_manager import Database
 from exceptions.program_exceptions import InvalidMenuNumber
-from exceptions.database_manager_exceptions import NotExistingSKU
 from mail_manager import Email
 
 
@@ -17,23 +16,91 @@ class Program():
 
         self.database = Database()
         self.email = Email()
-        self.menu_content = {
-            1: "Show raw materials to be reviewed",
-            2: "Send autoreminders about stock review",
-            3: "Show all raw materials",
-            4: "Add single material to database",
-            5: "Change stock of chosen material",
-            6: "Add sample raw materials to database",
-            7: "Reset database",
-            0: "Quit program"
+        self.menu_actions = {
+            1: {
+                "description": "Show raw materials to be reviewed",
+                "actions": [
+                    {
+                        "action_method": self.database.show_data,
+                        "argument": self.database.get_materials_to_review,
+                    },
+                ]
+            },
+            2: {
+                "description": "Send autoreminders about stock review",
+                "actions": [
+                    {
+                        "action_method": self.send_email_reminders,
+                        "argument": None,
+                    },
+                ]
+            },
+            3: {
+                "description": "Show all raw materials",
+                "actions": [
+                    {
+                        "action_method": self.database.show_data,
+                        "argument": self.database.get_all_materials,
+                    },
+                ]
+            },
+            4: {
+                "description": "Add single material to database",
+                "actions": [
+                    {
+                        "action_method": self.database.add_new_material,
+                        "argument": None,
+                    },
+                ]
+            },
+            5: {
+                "description": "Change stock of chosen material",
+                "actions": [
+                    {
+                        "action_method": self.database.change_current_stock,
+                        "argument": None,
+                    },
+                ]
+            },
+            6: {
+                "description": "Add sample raw materials to database",
+                "actions": [
+                    {
+                        "action_method": self.database.add_sample_raw_materials_stocks,
+                        "argument": None,
+                    },
+                ]
+            },
+            7: {
+                "description": "Reset database",
+                "actions": [
+                    {
+                        "action_method": self.database.reset_database,
+                        "argument": None,
+                    },
+                ]
+            },
+            0: {
+                "description": "Quit program",
+                "actions": [
+                    {
+                        "action_method": self.database.disconnect_database,
+                        "argument": None,
+                    },
+                    {
+                        "action_method": sys.exit,
+                        "argument": None,
+                    },
+                ]
+            }
         }
 
     def print_menu(self):
         """Prints main menu of program as list of available options to be performed"""
 
         print("Menu")
-        for key, option in self.menu_content.items():
-            print(f"{key}. {option}", end="\t")
+        for key, option in self.menu_actions.items():
+            print(f"{key}. {option['description']}", end="\t")
             if key % 3 == 0:
                 print()
 
@@ -97,7 +164,7 @@ class Program():
             self.print_menu()
             try:
                 choice = int(input("Select operation:\n"))
-                if choice not in self.menu_content.keys():
+                if choice not in self.menu_actions.keys():
                     raise InvalidMenuNumber("Wrong number entered. Try again\n" + "-" * 40)
             except ValueError:
                 print("Wrong value entered. Try again\n" + "-" * 40)
@@ -105,26 +172,10 @@ class Program():
             except InvalidMenuNumber as exception:
                 print(exception)
                 continue
-            if choice == 1:
-                materials_to_review = self.database.get_materials_to_review()
-                self.database.show_data(materials_to_review)
-            elif choice == 2:
-                self.send_email_reminders()
-            elif choice == 3:
-                all_materials = self.database.get_all_materials()
-                self.database.show_data(all_materials)
-            elif choice == 4:
-                self.database.add_new_material()
-            elif choice == 5:
-                try:
-                    self.database.change_current_stock()
-                except NotExistingSKU as exception:
-                    print(exception)
-            elif choice == 6:
-                self.database.add_sample_raw_materials_stocks()
-            elif choice == 7:
-                self.database.reset_database()
-            elif choice == 0:
-                self.database.disconnect_database()
-                sys.exit()
-            print("-" * 40)
+            for action in self.menu_actions[choice]["actions"]:
+                argument_func = action["argument"]
+                if argument_func is None:
+                    action["action_method"]()
+                else:
+                    argument = argument_func()
+                    action["action_method"](argument)

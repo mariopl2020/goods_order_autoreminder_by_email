@@ -56,8 +56,8 @@ class Database():
     def create_raw_materials_table(self):
         """Creates initial table of raw materials"""
 
-        self.cursor.execute("CREATE TABLE raw_materials_stock (id INTEGER"
-                            "PRIMARY KEY AUTOINCREMENT, sku_description TEXT, sku_id INTEGER,"
+        self.cursor.execute("CREATE TABLE raw_materials_stock (id INTEGER PRIMARY KEY "
+                            "AUTOINCREMENT, sku_description TEXT, sku_id INTEGER,"
                             " current_stock_kg NUMERIC, price NUMERIC, last_review_date DATE,"
                             " responsible_employee TEXT)")
         self.connection.commit()
@@ -65,6 +65,7 @@ class Database():
     def reset_database(self):
         """Deletes table in database if exist and creates empty new one"""
 
+        self.check_database_existence()
         if self.exists:
             self.drop_table_from_database()
         self.create_raw_materials_table()
@@ -196,7 +197,7 @@ class Database():
             self.cursor.execute("SELECT sku_id FROM raw_materials_stock")
             existing_skus = [sku[0] for sku in self.cursor.fetchall()]
             if sku_id not in existing_skus:
-                raise NotExistingSKU("Provided SKU does not exist. Try again")
+                raise NotExistingSKU()
             new_quantity = float(input("Enter new quantity [kg]\n"))
             self.cursor.execute("UPDATE raw_materials_stock SET last_review_date=?,"
                                 "current_stock_kg=? WHERE sku_id =?",
@@ -204,3 +205,5 @@ class Database():
             self.connection.commit()
         except ValueError:
             print("Entered wrong value. Try again!")
+        except NotExistingSKU:
+            print("Provided SKU does not exist. Try again")
